@@ -7,6 +7,8 @@ def carica_da_file(file_path):
 
     """Carica le foto dal file, creando un nuovo anno ogni volta che compare per la prima volta"""
     try:
+
+        # Apro il CSV in lettura e uso csv.reader per separare i campi di ogni riga.
         infile = open(file_path, "r")
         reader = csv.reader(infile)
         elenco_foto = []
@@ -15,8 +17,10 @@ def carica_da_file(file_path):
         infile.close()
 
         lista_anni = {}
+        # Salto l intestazione e ricavo l anno di ogni foto.
         for lista in elenco_foto[1:]:
             anno = int(lista[4].strip())
+            # Creo una lista quando incontro un anno nuovo
             if anno not in lista_anni:
                 lista_anni[anno] = []
             lista_anni[anno].append(lista)
@@ -33,7 +37,7 @@ def aggiungi_foto(album, codice, titolo, autore, mese, anno, file_path):
     """Aggiunge una foto all'album, creando l'anno al volo se non è ancora presente"""
     if mese < 1 or mese > 12:
         return None
-
+    # Cerco il codice nelle foto di tutti gli anni per evitare duplicati.
     for lista_foto in album.values():
         for foto in lista_foto:
             if foto[0] == codice:
@@ -41,26 +45,27 @@ def aggiungi_foto(album, codice, titolo, autore, mese, anno, file_path):
 
     foto = [codice, titolo, autore, mese, anno]
 
-
+    # Apro il CSV per controllare i codici già registrati
     try:
         infile = open(file_path, "r")
         reader = csv.reader(infile)
         elenco_foto = []
         for row in reader:
             elenco_foto.append(row)
-
+            # Raccolgo i codici delle righe lette, saltando l'intestazione
             codici = []
             for lista in elenco_foto[1:]:
                 if lista[0] not in codici:
                     codici.append(lista[0])
+        # Scrivo la foto soltanto se il codice non è già nel file
         if codice not in codici:
 
             with open(file_path, "a") as outfile:
                 outfile.write(f"{codice},{titolo},{autore},{mese},{anno}\n")
-
+            # Creo l'anno nell'album se ancora non esiste
             if anno not in album:
                 album[anno] = []
-
+            # Aggiorno l'album dopo aver scritto la riga nel CSV
             album[anno].append(foto)
             return foto
 
@@ -75,9 +80,10 @@ def aggiungi_foto(album, codice, titolo, autore, mese, anno, file_path):
 
 def cerca_foto(album, codice):
     """Cerca una foto nell'album dato il codice"""
-
+    # itero le foto conservate nei vari anni
     for lista_foto in album.values():
         for foto in lista_foto:
+            # Tolgo gli spazi e converto mese e anno in testo, se sono numeri
             codice_foto = foto[0].strip()
             titolo = foto[1].strip()
             autore = foto[2].strip()
@@ -93,11 +99,12 @@ def cerca_foto(album, codice):
 
 def elenco_foto_anno_per_titolo(album, anno):
     """Ordina i titoli delle foto di un dato anno in ordine alfabetico"""
+    # Controllo se l'anno esiste
     if anno not in album:
         return None
-
+    # Ordino le foto usando il titolo
     foto_ordinate = sorted(album[anno], key=itemgetter(1))
-
+    # prendo solo i titoli delle foto ordinate
     titoli = [foto[1] for foto in foto_ordinate]
 
     return titoli
