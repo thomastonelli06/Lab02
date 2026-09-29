@@ -1,4 +1,5 @@
 import csv
+from operator import itemgetter
 from ctypes import memset
 
 
@@ -15,7 +16,7 @@ def carica_da_file(file_path):
 
         lista_anni = {}
         for lista in elenco_foto[1:]:
-            anno = lista[4]
+            anno = int(lista[4].strip())
             if anno not in lista_anni:
                 lista_anni[anno] = []
             lista_anni[anno].append(lista)
@@ -25,22 +26,27 @@ def carica_da_file(file_path):
     except FileNotFoundError:
         return None
 
-
+#questo va beneeee
 
 
 def aggiungi_foto(album, codice, titolo, autore, mese, anno, file_path):
     """Aggiunge una foto all'album, creando l'anno al volo se non è ancora presente"""
     if anno not in album:
+        album[anno] = []
         album[anno].append([codice, titolo, autore, mese])
     if anno in album:
         if codice not in album[anno]:
             album[anno].append([codice, titolo, autore, mese])
 
     try:
-        with open(file_path, "r") as infile:
-            reader = csv.reader(infile)
+        infile = open(file_path, "r")
+        reader = csv.reader(infile)
+        elenco_foto = []
+        for row in reader:
+            elenco_foto.append(row)
+
             codici = []
-            for lista in reader[1:]:
+            for lista in elenco_foto[1:]:
                 if lista[0] not in codici:
                     codici.append(lista[0])
         if codice not in codici:
@@ -58,22 +64,19 @@ def aggiungi_foto(album, codice, titolo, autore, mese, anno, file_path):
 
 
 
-
 def cerca_foto(album, codice):
     """Cerca una foto nell'album dato il codice"""
-
-
 
     for lista_foto in album.values():
         for foto in lista_foto:
             codice_foto = foto[0].strip()
-            titolo = foto[1]
-            autore = foto[2]
-            mese = foto[3]
-            anno_foto = foto[4]
+            titolo = foto[1].strip()
+            autore = foto[2].strip()
+            mese = foto[3].strip()
+            anno_foto = foto[4].strip()
 
 
-            if codice == codice_foto:
+            if codice.strip() == codice_foto:
                 return foto
 
 
@@ -82,11 +85,14 @@ def cerca_foto(album, codice):
 
 def elenco_foto_anno_per_titolo(album, anno):
     """Ordina i titoli delle foto di un dato anno in ordine alfabetico"""
-    for anno in album:
-        print(anno)
-        for foto in album[anno]:
-            titoli_ordinati = anno.sort(key = itemgetter(1))
-             print(titoli_ordinati)
+    if anno not in album:
+        return None
+
+    foto_ordinate = sorted(album[anno], key=itemgetter(1))
+
+    titoli = [foto[1] for foto in foto_ordinate]
+
+    return titoli
 
 
 
