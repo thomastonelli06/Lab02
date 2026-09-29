@@ -26,7 +26,7 @@ def carica_da_file(file_path):
     except FileNotFoundError:
         return None
 
-#questo va beneeee
+
 
 
 def aggiungi_foto(album, codice, titolo, autore, mese, anno, file_path):
