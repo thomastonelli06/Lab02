@@ -34,17 +34,13 @@ def aggiungi_foto(album, codice, titolo, autore, mese, anno, file_path):
     if mese < 1 or mese > 12:
         return None
 
-    for lista_foto in album:
+    for lista_foto in album.values():
         for foto in lista_foto:
             if foto[0] == codice:
                 return None
 
-    if anno not in album:
-        album[anno] = []
-        album[anno].append([codice, titolo, autore, mese])
-    if anno in album:
-        if codice not in album[anno]:
-            album[anno].append([codice, titolo, autore, mese])
+    foto = [codice, titolo, autore, mese, anno]
+
 
     try:
         infile = open(file_path, "r")
@@ -60,11 +56,16 @@ def aggiungi_foto(album, codice, titolo, autore, mese, anno, file_path):
         if codice not in codici:
 
             with open(file_path, "a") as outfile:
-                outfile.write(f"\n{codice},{titolo},{autore},{mese},{anno}\n")
+                outfile.write(f"{codice},{titolo},{autore},{mese},{anno}\n")
+
+            if anno not in album:
+                album[anno] = []
+
+            album[anno].append(foto)
+            return foto
 
 
-        return  f"{codice}, {titolo}, {autore}, {mese}, {anno}"
-    except FileNotFoundError or ValueError:
+    except (FileNotFoundError, ValueError):
         return None
 
 
@@ -80,9 +81,8 @@ def cerca_foto(album, codice):
             codice_foto = foto[0].strip()
             titolo = foto[1].strip()
             autore = foto[2].strip()
-            mese = foto[3].strip()
-            anno_foto = foto[4].strip()
-
+            mese = str(foto[3]).strip()
+            anno_foto = str(foto[4]).strip()
 
             if codice.strip() == codice_foto:
                 return  f"{codice_foto}, {titolo}, {autore}, {mese}, {anno_foto}"
